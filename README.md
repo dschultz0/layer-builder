@@ -4,8 +4,14 @@ Cross-platform (supports both Win and Mac), targeting both x86 and ARM chips, an
 based on you existing `requirements.txt`.
 
 ## Build from requirements
-Using this library, you can 
+Using this library, you can build a layer containing the packages defined in a `requirements.txt`
+file in your AWS CDK pipeline (or other tools). The packages are installed in a local directory
+using the appropriate platform target. 
 
+Wherever possible we attempt to limit the size of the resulting layer by removing any packages 
+that are already native to Lambda (`boto`, `six`, `future`, etc.) or otherwise 
+unnecessary. `additional_commands` and `cleanup_function` parameters can be used to further
+reduce the size of the package by removing any unnecessary libraries.
 
 ```Python
 from layer_builder import build_from_requirements
@@ -23,8 +29,8 @@ class LayerStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
         
         build_from_requirements(
-            "../../requirements.txt",
-            "./build/layer",
+            "../../requirements.txt", # The packages to install
+            "./build/layer", # Where to place the layer packages
             max_mb=20, # Check if the size of the layer is larger than expected
             clean=True, # Delete previous install
             graviton=True, # Specify targeting ARM architecture
